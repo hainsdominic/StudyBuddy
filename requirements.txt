@@ -1,0 +1,4 @@
+cv2-contrib-python
+pickle
+time
+matplotlib

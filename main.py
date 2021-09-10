@@ -1,5 +1,6 @@
 import cv2
 import time
+import pickle
 
 eyeglasses_cascade = cv2.CascadeClassifier(
     "cascades/haarcascade_eye_tree_eyeglasses.xml"
@@ -57,7 +58,6 @@ def detectEyes():
             if now not in distractions:
                 distractions[now] = 0
             timestamp = None
-        print(distractions)
 
         if cv2.waitKey(20) & 0xFF == ord("q"):
             break
@@ -74,11 +74,6 @@ def plot_distractions(distractions: dict):
 
     # Data for plotting
     x = list(key - next(iter(distractions)) for key in distractions.keys())
-    times = []
-    for ts in x:
-        print(time.strftime("%H:%M:%S", time.localtime(ts)))
-        times.append(1)
-    # x = [time.strftime("%H:%M: %S") for ts in x]
     y = list(distractions.values())
 
     fig, ax = plt.subplots()
@@ -91,11 +86,17 @@ def plot_distractions(distractions: dict):
     )
     ax.grid()
 
-    # TODO set ticks of plot
-
+    plt.yticks([0, 1])
+    plt.xticks(x)
     plt.show()
+
+
+def save_obj(obj, name):
+    with open(name + ".pkl", "wb") as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == "__main__":
     distractions_observed = detectEyes()
     plot_distractions(distractions_observed)
+    save_obj(distractions_observed, str(int(time.time())) + "_distractions")
