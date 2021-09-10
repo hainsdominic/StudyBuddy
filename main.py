@@ -1,6 +1,5 @@
 import cv2
-from playsound import playsound
-from time import time
+import time
 
 eyeglasses_cascade = cv2.CascadeClassifier(
     "cascades/haarcascade_eye_tree_eyeglasses.xml"
@@ -11,8 +10,11 @@ eye_cascade = cv2.CascadeClassifier("cascades/haarcascade_eye.xml")
 def detectEyes():
     timestamp = None
     cap = cv2.VideoCapture(0)
+    distractions = {}
 
     while True:
+        now = int(time.time())
+
         # Capture frame by frame
         ret, frame = cap.read()
 
@@ -40,17 +42,22 @@ def detectEyes():
         # Display resulting frame
         cv2.imshow("frame", frame)
 
+        # Add the attention status to the distractions dictionnay
         if len(eyeglasses) + len(eye) == 0:
             # Get the current timestamp in seconds
-            current = int(time())
+            current = int(time.time())
+
             if timestamp == None:
                 timestamp = current
 
-            if current > timestamp + 2:
-                playsound("alarm.wav")
+            if current > timestamp:
+                distractions[current] = 1
                 timestamp = None
         else:
+            if now not in distractions:
+                distractions[now] = 0
             timestamp = None
+        print(distractions)
 
         if cv2.waitKey(20) & 0xFF == ord("q"):
             break
@@ -59,6 +66,36 @@ def detectEyes():
     cap.release()
     cv2.destroyAllWindows()
 
+    return distractions
+
+
+def plot_distractions(distractions: dict):
+    import matplotlib.pyplot as plt  # Avoids seg. error
+
+    # Data for plotting
+    x = list(key - next(iter(distractions)) for key in distractions.keys())
+    times = []
+    for ts in x:
+        print(time.strftime("%H:%M:%S", time.localtime(ts)))
+        times.append(1)
+    # x = [time.strftime("%H:%M: %S") for ts in x]
+    y = list(distractions.values())
+
+    fig, ax = plt.subplots()
+    ax.plot(x, y)
+
+    ax.set(
+        xlabel="Timestamp (s)",
+        ylabel="Distractions",
+        title="Distractions versus time",
+    )
+    ax.grid()
+
+    # TODO set ticks of plot
+
+    plt.show()
+
 
 if __name__ == "__main__":
-    detectEyes()
+    distractions_observed = detectEyes()
+    plot_distractions(distractions_observed)
