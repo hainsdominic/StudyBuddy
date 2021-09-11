@@ -84,19 +84,20 @@ def plot_distractions(distractions: dict):
         ylabel="Distractions",
         title="Distractions versus time",
     )
-    ax.grid()
 
     plt.yticks([0, 1])
-    plt.xticks(x)
+
+    fig.savefig(str(next(iter(distractions))) + ".png")
+
     plt.show()
 
 
-def save_obj(obj, name):
-    with open(name + ".pkl", "wb") as f:
+def save_obj(obj):
+    with open(str(next(iter(obj))) + "_distractions" + ".pkl", "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == "__main__":
     distractions_observed = detectEyes()
     plot_distractions(distractions_observed)
-    save_obj(distractions_observed, str(int(time.time())) + "_distractions")
+    save_obj(distractions_observed)
