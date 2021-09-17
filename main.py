@@ -87,13 +87,13 @@ def plot_distractions(distractions: dict):
 
     plt.yticks([0, 1])
 
-    fig.savefig(str(next(iter(distractions))) + ".png")
+    fig.savefig("saves/" + str(next(iter(distractions))) + ".png")
 
     plt.show()
 
 
 def save_obj(obj):
-    with open(str(next(iter(obj))) + "_distractions" + ".pkl", "wb") as f:
+    with open("saves/" + str(next(iter(obj))) + "_distractions" + ".pkl", "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
